@@ -1,0 +1,10 @@
+FROM mysql:8.0
+
+ENV MYSQL_ROOT_PASSWORD = magento2AI4PA
+ENV MYSQL_DATABASE = magento
+ENV MYSQL_USER = magento
+ENV MYSQL_PASSWORD = magai
+
+# COPY ./my-mysql.conf /etc/mysql/conf.d/magento.cnf
+
+VOLUME "/var/lib/mysql/"
