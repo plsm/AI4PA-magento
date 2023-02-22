@@ -1,0 +1,42 @@
+version: '3'
+services:
+  opensearch-node1: # This is also the hostname of the container within the Docker network (i.e. https://opensearch-node1/)
+    image: opensearchproject/opensearch:latest # Specifying the latest available image - modify if you want a specific version
+    container_name: ai4pa-opensearch-node1
+    environment:
+      - discovery.type=single-node
+      - bootstrap.memory_lock=true # Disable JVM heap memory swapping
+      - "OPENSEARCH_JAVA_OPTS=-Xms512m -Xmx512m" # Set min and max JVM heap sizes to at least 50% of system RAM
+    ulimits:
+      memlock:
+        soft: -1 # Set memlock to unlimited (no soft or hard limit)
+        hard: -1
+      nofile:
+        soft: 65536 # Maximum number of open files for the opensearch user - set to at least 65536
+        hard: 65536
+    volumes:
+      - type: volume # Creates volume called opensearch-data1 and mounts it to the container
+        source: ai4pa-opensearch-data1
+        target: /usr/share/opensearch/data
+    ports:
+      - 39200:9200 # REST API
+      - 39600:9600 # Performance Analyzer
+    networks:
+      - ai4pa-network # All of the containers will join the same Docker bridge network
+  opensearch-dashboards:
+    image: opensearchproject/opensearch-dashboards:latest # Make sure the version of opensearch-dashboards matches the version of opensearch installed on other nodes
+    container_name: ai4pa-opensearch-dashboards
+    ports:
+      - 35601:5601 # Map host port 5601 to container port 5601
+    expose:
+      - "5601" # Expose port 5601 for web access to OpenSearch Dashboards
+    environment:
+      OPENSEARCH_HOSTS: '["https://opensearch-node1:9200"]' # Define the OpenSearch nodes that OpenSearch Dashboards will query
+    networks:
+      - ai4pa-network
+
+volumes:
+  ai4pa-opensearch-data1:
+
+networks:
+  ai4pa-network:
