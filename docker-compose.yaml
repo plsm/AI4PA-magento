@@ -23,6 +23,7 @@ services:
       - 39600:9600 # Performance Analyzer
     networks:
       - ai4pa-network # All of the containers will join the same Docker bridge network
+
   opensearch-dashboards:
     image: opensearchproject/opensearch-dashboards:latest # Make sure the version of opensearch-dashboards matches the version of opensearch installed on other nodes
     container_name: ai4pa-opensearch-dashboards
@@ -47,9 +48,20 @@ services:
     networks:
       - ai4pa-network
 
+  amqp:
+    image: rabbitmq:3.9
+    container_name: ai4pa-amqp
+    volumes:
+      - type: volume
+        source: ai4pa-amqp
+        target: /var/lib/rabbitmq/mnesia/
+    networks:
+      - ai4pa-network
+
 volumes:
   ai4pa-opensearch-data1:
   ai4pa-db:
+  ai4pa-amqp:
 
 networks:
   ai4pa-network:
